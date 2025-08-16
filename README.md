@@ -7,15 +7,6 @@ Este proyecto es un bot de Discord que incluye:
 - 🏆 Una tabla de posiciones de trivia en tiempo real.
 - ⚙️ Una arquitectura modular con **cogs** para organizar los comandos.
 
-## 📂 Estructura del proyecto
-
-.
-├── cogs/
-│ └── commands.py # Cog con los comandos de trivia y ping
-├── config.py # Configuración (ej. prefijo de comandos)
-├── main.py # Punto de entrada principal del bot
-├── requirements.txt # Dependencias del proyecto
-
 ## 🚀 Instalación
 
 1. **Clonar el repositorio**
@@ -24,29 +15,27 @@ Este proyecto es un bot de Discord que incluye:
    git clone <URL_DEL_REPOSITORIO>
    cd <NOMBRE_DEL_PROYECTO>
 
-    Crear un entorno virtual (opcional pero recomendado)
-
-python -m venv .venv
-source .venv/bin/activate   # Linux / Mac
-.venv\Scripts\activate      # Windows
-
 Instalar las dependencias
 
+```bash
     pip install -r requirements.txt
+```
 
 🔑 Configuración del Token
 
 Este bot utiliza variables de entorno para mayor seguridad.
 Debes crear un archivo .env en la raíz del proyecto con el siguiente contenido:
 
-TOKEN=TU_TOKEN_DE_DISCORD_AQUI
+    TOKEN=TU_TOKEN_DE_DISCORD_AQUI
 
 👉 Reemplaza TU_TOKEN_DE_DISCORD_AQUI con el token de tu bot generado en el  [Portal de Desarrolladores de Discord](https://discord.com/developers/applications).
 ▶️ Ejecución
 
 Para iniciar el bot:
 
-python main.py
+```bash
+    python main.py
+```
 
 Si todo está configurado correctamente, en la consola deberías ver:
 
