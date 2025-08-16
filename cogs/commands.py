@@ -1,8 +1,9 @@
-"""A Discord cog for fun and interactive commands.
+"""Un cog de Discord para comandos divertidos e interactivos.
 
-This cog includes a full trivia game system fetched from the OpenTDB API,
-complete with interactive buttons, difficulty selection, and a session-based
-leaderboard. It also includes a simple 'ping' command to check bot latency.
+Este cog incluye un sistema completo de juego de trivia usando la API OpenTDB,
+con botones interactivos, selección de dificultad y una tabla de puntuaciones
+basada en sesiones. También incluye un comando simple 'ping' para comprobar
+la latencia del bot.
 """
 
 import random
@@ -15,64 +16,64 @@ from discord.ui import Button, View, button
 
 
 class TriviaView(View):
-    """A Discord UI View that presents the trivia options as interactive buttons.
+    """Una vista de Discord que presenta las opciones de trivia como botones interactivos.
 
-    This view manages the state of the trivia question's buttons, processes user
-    interactions, and determines the outcome of the answer.
+    Esta vista maneja el estado de los botones de la pregunta de trivia, procesa
+    las interacciones de los usuarios y determina el resultado de la respuesta.
 
-    Attributes:
-        correct_answer (str): The correct answer string for the question.
-        author (discord.Member): The user who initiated the trivia command.
-        winner (Optional[discord.Member]): The user who answered correctly.
-            Defaults to None.
+    Atributos:
+        correct_answer (str): La respuesta correcta de la pregunta.
+        author (discord.Member): El usuario que inició el comando de trivia.
+        winner (Optional[discord.Member]): El usuario que respondió correctamente.
+            Por defecto es None.
     """
 
     def __init__(self, correct_answer: str, author: discord.Member):
-        """Initializes the TriviaView.
+        """Inicializa la TriviaView.
 
         Args:
-            correct_answer: The string of the correct answer.
-            author: The member who started the command, who is the only one
-                allowed to answer.
+            correct_answer: La cadena con la respuesta correcta.
+            author: El miembro que inició el comando, y que es el único autorizado
+                a responder.
         """
         super().__init__(timeout=20.0)
         self.correct_answer = correct_answer
         self.author = author
         self.winner: Optional[discord.Member] = None
 
-    @button(label="Option 1", style=discord.ButtonStyle.primary, emoji="1️⃣")
+    @button(label="Opción 1", style=discord.ButtonStyle.primary, emoji="1️⃣")
     async def option_1(self, interaction: discord.Interaction, button: Button) -> None:
         await self.check_answer(interaction, button)
 
-    @button(label="Option 2", style=discord.ButtonStyle.primary, emoji="2️⃣")
+    @button(label="Opción 2", style=discord.ButtonStyle.primary, emoji="2️⃣")
     async def option_2(self, interaction: discord.Interaction, button: Button) -> None:
         await self.check_answer(interaction, button)
 
-    @button(label="Option 3", style=discord.ButtonStyle.primary, emoji="3️⃣")
+    @button(label="Opción 3", style=discord.ButtonStyle.primary, emoji="3️⃣")
     async def option_3(self, interaction: discord.Interaction, button: Button) -> None:
         await self.check_answer(interaction, button)
 
-    @button(label="Option 4", style=discord.ButtonStyle.primary, emoji="4️⃣")
+    @button(label="Opción 4", style=discord.ButtonStyle.primary, emoji="4️⃣")
     async def option_4(self, interaction: discord.Interaction, button: Button) -> None:
         await self.check_answer(interaction, button)
 
     async def check_answer(
         self, interaction: discord.Interaction, clicked_button: Button
     ) -> None:
-        """Callback coroutine for button presses to check the answer.
+        """Corrutina callback para comprobar la respuesta cuando se presiona un botón.
 
-        This method validates that the interacting user is the one who started
-        the trivia. It disables all buttons after the first click, highlights
-        the user's choice (green for correct, red for incorrect), shows the
-        correct answer if the user was wrong, and stops the view.
+        Este método valida que el usuario que interactúa sea el que inició
+        la trivia. Deshabilita todos los botones tras el primer clic, marca la
+        elección del usuario (verde si es correcta, rojo si es incorrecta),
+        muestra la respuesta correcta si falló y detiene la vista.
 
         Args:
-            interaction: The interaction triggered by the button press.
-            clicked_button: The button that was pressed by the user.
+            interaction: La interacción generada por el clic en el botón.
+            clicked_button: El botón presionado por el usuario.
         """
         if interaction.user != self.author:
             await interaction.response.send_message(
-                "This isn't your trivia! Start your own with the command.",
+                "¡Esta trivia no es tuya! Inicia la tuya con el comando.",
                 ephemeral=True,
             )
             return
@@ -85,7 +86,7 @@ class TriviaView(View):
             clicked_button.style = discord.ButtonStyle.success
             self.winner = self.author
             await interaction.response.edit_message(
-                content=f"Correct, {self.author.mention}! ✅", view=self
+                content=f"¡Correcto, {self.author.mention}! ✅", view=self
             )
         else:
             clicked_button.style = discord.ButtonStyle.danger
@@ -93,53 +94,53 @@ class TriviaView(View):
                 if isinstance(btn, Button) and btn.label == self.correct_answer:
                     btn.style = discord.ButtonStyle.success
             await interaction.response.edit_message(
-                content=f"Incorrect. The answer was **{self.correct_answer}** ❌",
+                content=f"Incorrecto. La respuesta era **{self.correct_answer}** ❌",
                 view=self,
             )
 
         self.stop()
 
 
-class FunCommands(commands.Cog):
-    """A cog that groups fun-related commands for the bot.
+class ComandosDivertidos(commands.Cog):
+    """Un cog que agrupa los comandos divertidos del bot.
 
-    Attributes:
-        bot (commands.Bot): The instance of the Discord bot.
-        scores (dict[int, int]): An in-memory dictionary to store user scores,
-            mapping user ID to their score.
+    Atributos:
+        bot (commands.Bot): La instancia del bot de Discord.
+        scores (dict[int, int]): Un diccionario en memoria para almacenar las
+            puntuaciones de los usuarios, mapeando ID de usuario a puntaje.
     """
 
     def __init__(self, bot: commands.Bot):
-        """Initializes the FunCommands cog."""
+        """Inicializa el cog ComandosDivertidos."""
         self.bot = bot
         self.scores: dict[int, int] = {}
 
     @commands.command()
     async def ping(self, ctx: commands.Context) -> None:
-        """Displays the bot's latency.
+        """Muestra la latencia del bot.
 
         Args:
-            ctx: The command invocation context.
+            ctx: El contexto de invocación del comando.
         """
         latency = round(self.bot.latency * 1000)
-        await ctx.send(f"🏓 Pong! ({latency} ms)")
+        await ctx.send(f"🏓 ¡Pong! ({latency} ms)")
 
     @commands.command()
     async def trivia(self, ctx: commands.Context, difficulty: str = "medium") -> None:
-        """Starts a trivia question with multiple-choice answers.
+        """Inicia una pregunta de trivia con opciones múltiples.
 
-        Fetches a question from the OpenTDB API. The user can specify a
-        difficulty. The question is presented in an embed with four buttons
-        as answer options. Only the command author can answer.
+        Obtiene una pregunta desde la API OpenTDB. El usuario puede especificar
+        la dificultad. La pregunta se muestra en un embed con cuatro botones
+        como opciones de respuesta. Solo el autor del comando puede responder.
 
         Args:
-            ctx: The command invocation context.
-            difficulty: The desired difficulty ('easy', 'medium', 'hard').
-                Defaults to 'medium'.
+            ctx: El contexto de invocación del comando.
+            difficulty: La dificultad deseada ('easy', 'medium', 'hard').
+                Por defecto es 'medium'.
         """
         valid_difficulties = ["easy", "medium", "hard"]
         if difficulty.lower() not in valid_difficulties:
-            await ctx.send("Invalid difficulty. Use `easy`, `medium`, or `hard`.")
+            await ctx.send("Dificultad inválida. Usa `easy`, `medium` o `hard`.")
             return
 
         url = f"https://opentdb.com/api.php?amount=1&type=multiple&difficulty={difficulty.lower()}"
@@ -149,16 +150,16 @@ class FunCommands(commands.Cog):
                 async with session.get(url) as resp:
                     if resp.status != 200:
                         await ctx.send(
-                            "Could not contact the trivia API. Please try again later."
+                            "No se pudo contactar con la API de trivia. Intenta más tarde."
                         )
                         return
                     data = await resp.json()
             except aiohttp.ClientError:
-                await ctx.send("A connection error occurred with the API.")
+                await ctx.send("Ocurrió un error de conexión con la API.")
                 return
 
         if not data["results"]:
-            await ctx.send("Couldn't find any questions for that difficulty.")
+            await ctx.send("No se encontraron preguntas para esa dificultad.")
             return
 
         question_data = data["results"][0]
@@ -173,11 +174,11 @@ class FunCommands(commands.Cog):
         random.shuffle(options)
 
         embed = discord.Embed(
-            title=f"Trivia! ({difficulty.capitalize()})",
+            title=f"Trivia ({difficulty.capitalize()})",
             description=f"**{question}**",
             color=discord.Color.purple(),
         )
-        embed.set_footer(text=f"Question for {ctx.author.display_name}")
+        embed.set_footer(text=f"Pregunta para {ctx.author.display_name}")
 
         view = TriviaView(correct_answer=correct, author=ctx.author)
         for i, option in enumerate(options):
@@ -191,18 +192,18 @@ class FunCommands(commands.Cog):
             user_id = view.winner.id
             self.scores[user_id] = self.scores.get(user_id, 0) + 1
             await ctx.send(
-                f"{view.winner.mention} now has **{self.scores[user_id]}** points!"
+                f"{view.winner.mention} ahora tiene **{self.scores[user_id]}** puntos!"
             )
 
     @commands.command()
     async def leaderboard(self, ctx: commands.Context) -> None:
-        """Displays the trivia leaderboard.
+        """Muestra la tabla de posiciones de la trivia.
 
         Args:
-            ctx: The command invocation context.
+            ctx: El contexto de invocación del comando.
         """
         if not self.scores:
-            await ctx.send("Nobody has played yet! Be the first with `!trivia`.")
+            await ctx.send("¡Nadie ha jugado todavía! Sé el primero con `!trivia`.")
             return
 
         sorted_scores = sorted(
@@ -210,22 +211,22 @@ class FunCommands(commands.Cog):
         )
 
         embed = discord.Embed(
-            title="🏆 Trivia Leaderboard 🏆", color=discord.Color.gold()
+            title="🏆 Tabla de posiciones de Trivia 🏆", color=discord.Color.gold()
         )
         description = ""
         for i, (user_id, score) in enumerate(sorted_scores[:10]):
             user = self.bot.get_user(user_id)
             if user:
-                description += f"{i + 1}. {user.mention} - **{score}** points\n"
+                description += f"{i + 1}. {user.mention} - **{score}** puntos\n"
 
         embed.description = description
         await ctx.send(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
-    """The setup function required for the bot to load the cog.
+    """Función de configuración requerida para que el bot cargue el cog.
 
     Args:
-        bot: The bot instance to which the cog will be added.
+        bot: La instancia del bot al que se añadirá el cog.
     """
-    await bot.add_cog(FunCommands(bot))
+    await bot.add_cog(ComandosDivertidos(bot))

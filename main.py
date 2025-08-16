@@ -1,8 +1,8 @@
-"""Main entry point for the Discord bot.
+"""Punto de entrada principal para el bot de Discord.
 
-This script initializes the bot, sets up logging, loads environment variables,
-configures Discord intents, loads all command extensions (cogs), and runs
-the bot.
+Este script inicializa el bot, configura el registro de logs, carga las
+variables de entorno, configura los intents de Discord, carga todas las
+extensiones de comandos (cogs) y ejecuta el bot.
 """
 
 import asyncio
@@ -32,38 +32,38 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 
 async def load_cogs() -> None:
-    """Dynamically finds and loads all cogs from the '/cogs' directory.
+    """Busca y carga dinámicamente todos los cogs desde el directorio '/cogs'.
 
-    This function iterates through all files in the './cogs' directory.
-    If a file ends with '.py', it attempts to load it as a bot extension.
-    It logs the outcome (success or failure) for each cog.
+    Esta función itera a través de todos los archivos en el directorio './cogs'.
+    Si un archivo termina con '.py', intenta cargarlo como una extensión del bot.
+    Registra en logs el resultado (éxito o error) de cada cog.
     """
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             try:
                 await bot.load_extension(f"cogs.{filename[:-3]}")
-                logging.info(f"✅ Cog loaded: {filename}")
+                logging.info(f"✅ Cog cargado: {filename}")
             except Exception as e:
-                logging.error(f"❌ Error loading {filename}: {e}")
+                logging.error(f"❌ Error al cargar {filename}: {e}")
 
 
 @bot.event
 async def on_ready() -> None:
-    """Event handler that runs when the bot successfully connects to Discord.
+    """Manejador de evento que se ejecuta cuando el bot se conecta exitosamente a Discord.
 
-    Logs a confirmation message to the console and sets the bot's presence
-    to "Playing Trivia!".
+    Registra un mensaje de confirmación en la consola y establece la presencia
+    del bot como "Jugando Trivia!".
     """
-    logging.info(f"Bot connected as {bot.user}")
+    logging.info(f"🤖 Bot conectado como {bot.user}")
     await bot.change_presence(activity=discord.Game(name="Trivia!"))
 
 
 async def main() -> None:
-    """The main asynchronous function to run the bot.
+    """Función asincrónica principal para ejecutar el bot.
 
-    This function serves as the primary entry point. It loads all cogs
-    and then starts the bot, connecting it to Discord using the token from
-    the environment variables.
+    Esta función sirve como punto de entrada principal. Carga todos los cogs
+    y luego inicia el bot, conectándolo a Discord usando el token de las
+    variables de entorno.
     """
     async with bot:
         await load_cogs()
