@@ -18,7 +18,7 @@ Este proyecto es un bot de Discord que incluye:
 Instalar las dependencias
 
 ```bash
-    pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 🔑 Configuración del Token
@@ -29,12 +29,13 @@ Debes crear un archivo .env en la raíz del proyecto con el siguiente contenido:
     TOKEN=TU_TOKEN_DE_DISCORD_AQUI
 
 👉 Reemplaza TU_TOKEN_DE_DISCORD_AQUI con el token de tu bot generado en el  [Portal de Desarrolladores de Discord](https://discord.com/developers/applications).
-▶️ Ejecución
+
+## ▶️ Ejecución
 
 Para iniciar el bot:
 
 ```bash
-    python main.py
+python main.py
 ```
 
 Si todo está configurado correctamente, en la consola deberías ver:
