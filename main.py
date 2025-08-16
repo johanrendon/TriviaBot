@@ -1,9 +1,15 @@
+"""Main entry point for the Discord bot.
+
+This script initializes the bot, sets up logging, loads environment variables,
+configures Discord intents, loads all command extensions (cogs), and runs
+the bot.
+"""
+
 import asyncio
 import logging
 import os
-import random
+from typing import Final
 
-import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -11,70 +17,58 @@ from dotenv import load_dotenv
 from config import PREFIX
 
 logging.basicConfig(
-    level=logging.INFO,  # Muestra mensajes INFO y superiores
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 load_dotenv()
+TOKEN: Final[str] = os.getenv("TOKEN")
 
-TOKEN: str = os.getenv("TOKEN")
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+
+bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 
-intents: discord.Intents = discord.Intents.default()  # Are like the permissions.
-intents.message_content = True  # We can see the message_content.
+async def load_cogs() -> None:
+    """Dynamically finds and loads all cogs from the '/cogs' directory.
 
-bot: commands.Bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+    This function iterates through all files in the './cogs' directory.
+    If a file ends with '.py', it attempts to load it as a bot extension.
+    It logs the outcome (success or failure) for each cog.
+    """
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            try:
+                await bot.load_extension(f"cogs.{filename[:-3]}")
+                logging.info(f"✅ Cog loaded: {filename}")
+            except Exception as e:
+                logging.error(f"❌ Error loading {filename}: {e}")
 
 
 @bot.event
 async def on_ready() -> None:
-    logging.info(f"Bot conectado como {bot.user}")
+    """Event handler that runs when the bot successfully connects to Discord.
+
+    Logs a confirmation message to the console and sets the bot's presence
+    to "Playing Trivia!".
+    """
+    logging.info(f"Bot connected as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="Trivia!"))
 
 
-@bot.command()
-async def ping(ctx):
-    latency = round(bot.latency * 1000)
-    await ctx.send(
-        f"🏓 Pong! ({latency} ms)"
-    )  # ctx.send sends a message to the channel where the command was written.
+async def main() -> None:
+    """The main asynchronous function to run the bot.
+
+    This function serves as the primary entry point. It loads all cogs
+    and then starts the bot, connecting it to Discord using the token from
+    the environment variables.
+    """
+    async with bot:
+        await load_cogs()
+        await bot.start(TOKEN)
 
 
-@bot.command()
-async def trivia(ctx):
-    url: str = "https://opentdb.com/api.php?amount=1&type=multiple"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            data = await resp.json()
-
-    question_data = data["results"][0]
-    question = discord.utils.escape_markdown(question_data["question"])
-    correct = discord.utils.escape_markdown(question_data["correct_answer"])
-    incorrect = question_data["incorrect_answers"]
-
-    options = incorrect + [correct]
-    random.shuffle(options)
-
-    embed: discord.Embed = discord.Embed(
-        title="Trivia", description=f"{question}", color=discord.Color.blue()
-    )  # Create a embed that will be send later
-
-    for i, option in enumerate(options, start=1):
-        embed.add_field(name=f"Opción {i}", value=option, inline=False)
-
-    await ctx.send(embed=embed)  # Whit this we send the embed
-
-    def check(message: discord.Message) -> bool:
-        return message.author == ctx.author and message.channel == ctx.channel
-
-    try:
-        msg = await bot.wait_for("message", check=check, timeout=15.0)
-    except asyncio.TimeoutError:
-        return await ctx.send(f"Tiempo agotado, la respuesta era **{correct}**")
-
-    if msg.content.strip().lower() == correct.lower():
-        await ctx.send(f"Correcto {ctx.author.mention}!")
-    else:
-        await ctx.send(f"Incorrecto. La respuesta correcta era: **{correct}**")
-
-
-bot.run(TOKEN)
+if __name__ == "__main__":
+    asyncio.run(main())
